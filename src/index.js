@@ -10,7 +10,7 @@ require('dotenv').config();
 // Конфигурация через переменные окружения (важно для Docker/K8s)
 const PORT = process.env.PORT || 3000;
 // По дефолту подключаемся к localhost, но в Docker это будет имя сервиса
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/todos';
 
 // Подключение к MongoDB
 mongoose.connect(MONGO_URI)
