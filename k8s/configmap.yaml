@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # В Кубере сервисы видят друг друга по именам.
+  # Мы назовем сервис базы 'mongo-service'
+  MONGO_URI: "mongodb://mongo-service:27017/todos"
+  PORT: "3000"

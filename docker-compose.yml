@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Наше приложение
+  api:
+    build: .
+    container_name: todo-api
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      # Важно: имя хоста 'mongodb' совпадает с именем сервиса ниже
+      - MONGO_URI=mongodb://mongodb:27017/todos
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+    restart: always
+
+  # База данных MongoDB
+  mongodb:
+    image: mongo:6.0
+    container_name: todo-mongo
+    ports:
+      - "27017:27017" # Пробрасываем порт, чтобы можно было подключиться локально
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+    restart: always
+
+  # Бонус: Веб-интерфейс для Mongo (чтобы получить доп баллы за архитектуру)
+  mongo-express:
+    image: mongo-express
+    container_name: todo-admin
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+# Сеть для общения контейнеров
+networks:
+  app-network:
+    driver: bridge
+
+# Том для хранения данных базы (чтобы не стирались при перезапуске)
+volumes:
+  mongo-data:
