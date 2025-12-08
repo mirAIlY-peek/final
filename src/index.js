@@ -1,8 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
+const cors = require('cors');
 
 // Middleware для парсинга JSON
+app.use(cors());
 app.use(express.json());
 
 require('dotenv').config();
@@ -46,6 +48,7 @@ app.post('/todos', async (req, res) => {
     try {
         const todo = new Todo(req.body);
         await todo.save();
+
         res.status(201).json(todo);
     } catch (error) {
         res.status(400).json({ error: error.message });

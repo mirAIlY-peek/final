@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: api-deployment
 spec:
-  replicas: 2 # ТРЕБОВАНИЕ: 2 реплики (Backend: 2 replicas)
+  replicas: 2 # (Backend: 2 replicas)
   selector:
     matchLabels:
       app: api
@@ -16,7 +16,7 @@ spec:
         - name: api
           # Важно: имя образа должно совпадать с тем, как мы назовем его при сборке
           image: todo-app:latest
-          imagePullPolicy: Never # Важно для Minikube (брать локальный образ, не качать из инета)
+          imagePullPolicy: Never #Minikube (брать локальный образ, не качать из инета)
           ports:
             - containerPort: 3000
           envFrom:
@@ -29,6 +29,8 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 10
 ---
+
+
 apiVersion: v1
 kind: Service
 metadata:
