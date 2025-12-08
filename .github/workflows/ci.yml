@@ -10,7 +10,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    # Поднимаем MongoDB внутри CI, чтобы тесты не падали
     services:
       mongodb:
         image: mongo:6.0
@@ -32,7 +31,6 @@ jobs:
       - name: Run Tests
         run: npm test
         env:
-          # В CI база доступна на localhost, так как это service container
           MONGO_URI: mongodb://localhost:27017/todos
 
       - name: Build Docker Image
