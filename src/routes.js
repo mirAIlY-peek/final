@@ -1,40 +1,53 @@
-const request = require('supertest');
-const { app, mongoose } = require('../index'); 
-const Todo = require('../models/todo');
+const express = require('express');
+const router = express.Router();
+const Todo = require('./models/todo');
 
-describe('Todo API', () => {
-
-
-    beforeAll(async () => {
-        await Todo.deleteMany({});
-    });
-
-    afterAll(async () => {
-        await mongoose.connection.close();
-    });
-
-    // Тест 1: Healthcheck
-    it('GET /health should return 200 UP', async () => {
-        const res = await request(app).get('/health');
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.status).toEqual('UP');
-    });
-
-    // Тест 2: Создание задачи
-    it('POST /todos should create a new task', async () => {
-        const task = { title: "Test Task via Jest" };
-        const res = await request(app).post('/todos').send(task);
-        
-        expect(res.statusCode).toEqual(201);
-        expect(res.body.title).toEqual(task.title);
-        expect(res.body.completed).toEqual(false);
-    });
-
-    // Тест 3: Получение списка
-    it('GET /todos should return an array', async () => {
-        const res = await request(app).get('/todos');
-        expect(res.statusCode).toEqual(200);
-        expect(Array.isArray(res.body)).toBeTruthy();
-        expect(res.body.length).toBeGreaterThan(0); // Должна быть 1 задача (которую создали выше)
-    });
+router.get('/health', (req, res) => {
+    res.json({ status: 'UP' });
 });
+
+router.post('/todos', async (req, res) => {
+    const todo = new Todo({ title: req.body.title });
+    await todo.save();
+    res.status(201).json(todo);
+});
+
+router.get('/todos', async (req, res) => {
+    const todos = await Todo.find();
+    res.json(todos);
+});
+
+router.put('/todos/:id', async (req, res) => {
+    try {
+        const updated = await Todo.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ message: 'Todo not found' });
+        }
+
+        res.json(updated);
+    } catch (err) {
+        res.status(400).json({ message: 'Invalid ID' });
+    }
+});
+
+router.delete('/todos/:id', async (req, res) => {
+    try {
+        const deleted = await Todo.findByIdAndDelete(req.params.id);
+
+        if (!deleted) {
+            return res.status(404).json({ message: 'Todo not found' });
+        }
+
+        res.json({ message: 'Todo deleted successfully' });
+
+    } catch (err) {
+        res.status(400).json({ message: 'Invalid ID' });
+    }
+});
+
+module.exports = router;
